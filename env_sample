@@ -1,0 +1,3 @@
+TZ=UTC
+PORT=1000
+NODE_ENV=development
