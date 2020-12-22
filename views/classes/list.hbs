@@ -7,11 +7,14 @@
 						<h2>Classes List</h2>
 					</div>
 					<div class="col-sm-6">
-						<input class="form-control me-2 mb-2" placeholder="search by all" type="search" id="search" name="search">
-						<button class="btn btn-danger" id="reset" type="submit">Reset</button>
+						<form action="/classes/list">
+						<input class="form-control me-2 mb-2" placeholder="search by all" type="search" id="search"
+							name="search">
+						<button class="btn btn-danger" id="reset" type="reset">Reset</button>
 						<button class="btn btn-success" id="search" type="submit">Search</button>
-						<a href="#addEmployeeModal" class="btn btn-success" data-toggle="modal"><i
+						<a href="#addClassesModal" class="btn btn-success" data-toggle="modal"><i
 								class="material-icons">&#xE147;</i> <span>Add New Class</span></a>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -28,17 +31,21 @@
 					{{#if classes}}
 					{{#each classes}}
 					<tr>
-						<td>{{collegeName}}</td>
+						<td>{{college}}</td>
 						<td>{{class}}</td>
-						<td>{{levels}}</td>
+						<td>
+							{{#each levels}}
+							{{level}}
+							{{/each}}
+						</td>
 						<td class="w-30">
 							<a href="#" class="download"><span class="material-icons">
 									get_app
 								</span></a>
-							<a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons"
-									data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-							<a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons"
-									data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+							<a href="#editClassesModal" class="edit" data-id={{_id}} data-toggle="modal"><i
+									class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
+							<a href="#deleteClassesModal" class="delete" data-id={{_id}} data-toggle="modal"><i
+									class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
 						</td>
 					</tr>
 					{{/each}}
@@ -49,7 +56,12 @@
 					{{/if}}
 				</tbody>
 			</table>
-			<div class="clearfix">
+			{{#if pagination.totalPage}}
+			<div class="col-md-6">
+				{{pagination pagination}}
+			</div>
+			{{/if}}
+			{{!-- <div class="clearfix">
 				<div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
 				<ul class="pagination">
 					<li class="page-item disabled"><a href="#">Previous</a></li>
@@ -60,7 +72,13 @@
 					<li class="page-item"><a href="#" class="page-link">5</a></li>
 					<li class="page-item"><a href="#" class="page-link">Next</a></li>
 				</ul>
-			</div>
+			</div> --}}
 		</div>
 	</div>
 </div>
+
+{{> models/addClasses}}
+{{> models/editClasses}}
+<script>
+	new classes()
+</script>

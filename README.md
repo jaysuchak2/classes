@@ -11,6 +11,8 @@ The crud operations for NodeJs
   ```
   Create database and add default data
   ```
+  node script/initScript.js
+  ```
   Start server
   ```
   npm start

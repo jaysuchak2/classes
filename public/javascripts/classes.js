@@ -5,15 +5,41 @@ var classes = function () {
         this.delete();
         this.edit();
         this.loadCollege();
+        this.loadLevels();
     }
     this.loadCollege = function () {
-        
+        $.ajax({
+            type: "GET",
+            url: "/classes/loadCollege",
+            dataType: "json",
+            success: function (data) {
+                for (let obj of data.college) {
+                    console.log(obj);
+                    var div_data = "<option value=" + obj._id + ">" + obj.name + "</option>";
+                    $(div_data).appendTo('#addCollege');
+                }
+            }
+        });
+    }
+    this.loadLevels = function () {
+        $.ajax({
+            type: "GET",
+            url: "/classes/loadLevels",
+            dataType: "json",
+            success: function (data) {
+                for (let obj of data.levels) {
+                    console.log(obj);
+                    var div_data = "<option value=" + obj._id + ">" + obj.level + "</option>";
+                    $(div_data).appendTo('#addLevels');
+                }
+            }
+        });
     }
     this.add = function () {
         /**
          * this function is use for add representative form validation
          */
-        $('form#addEmployee').validate({
+        $('form#addClasses').validate({
             errorClass: "errorNum",
             rules: {
                 college: {
@@ -24,6 +50,7 @@ var classes = function () {
                 },
                 contactNumber: {
                     required: true,
+                    number: true,
                     minlength: 10
                 },
                 email: {
@@ -31,15 +58,16 @@ var classes = function () {
                     email: true
                 },
                 price: {
+                    required: true,
+                    number: true
+                },
+                levels: {
                     required: true
                 },
-                levels:{
+                description: {
                     required: true
                 },
-                description:{
-                    required: true
-                },
-                syllabus:{
+                syllabus: {
                     required: true
                 }
             },
@@ -47,41 +75,62 @@ var classes = function () {
                 college: {
                     required: 'Please select college',
                 },
-                title:{
+                title: {
                     message: 'Please enter title'
                 },
                 contactNumber: {
                     required: 'Please enter rep mobile number',
-                    minlength: 'Please enter 10 digit mobile number'
+                    minlength: 'Please enter 10 digit mobile number',
+                    number: 'Please enter numeric only'
                 },
                 email: {
                     required: 'Please enter an email',
                     email: 'Please enter a valid email'
                 },
                 price: {
-                    required: 'Please enter price'
+                    required: 'Please enter price',
+                    number: 'Please enter numeric only'
                 },
                 levels: {
                     required: 'Please enter levels'
                 },
-                description:{
+                description: {
                     required: 'Please enter description'
                 },
-                syllabus:{
+                syllabus: {
                     required: 'Please upload a syllabus'
                 }
             },
             submitHandler: function (form) {
-                $(form).ajaxSubmit({
+                var fd = new FormData();
+                fd.append('file', input.files[0]);
+                $.ajax({
+                    url: '/classes/add',
                     dataType: 'json',
+                    type: 'POST',
                     processData: false,
-                    data: {
-                        number_with_code: countryCodeVar.getNumber()
-                    },
+                    data: fd,
                     success: function (data) {
                         if (data.type == 'success') {
-                            //Load list page
-                            window.location.href = "/classes/list"
+
+                            toastr.success(data.message, "Successfully", {
+                                progressBar: !0,
+                                timeOut: 2e3,
+                                showMethod: "slideDown",
+                                hideMethod: "slideUp",
+                            });
+                            location.href = "/classes/list";
+                        } else {
+                            if (data.type == 'success') {
+
+                                toastr.error(data.error, "Error", {
+                                    progressBar: !0,
+                                    timeOut: 2e3,
+                                    showMethod: "slideDown",
+                                    hideMethod: "slideUp",
+                                });
+                                location.href = "/classes/list";
+                            }
                         }
                     }
                 });
@@ -94,7 +143,7 @@ var classes = function () {
      */
     this.delete = function () {
         $(".delete").on("click", function () {
-            let url = $(this).attr('href');
+            let url = '/classes/' + $(this).data('id');
             //Sweat alert for confirmation
             swal({
                 title: 'Are you sure?',
@@ -107,7 +156,7 @@ var classes = function () {
             }).then(function (isConfirm) {
                 //If user agree
                 if (isConfirm) {
-                    $.get(url, {}, function (data) {
+                    $.delete(url, {}, function (data) {
                         //Ajax get request
                         if (data.type == 'success') {
                             //successfully response
@@ -133,7 +182,7 @@ var classes = function () {
                         }
                     });
                 } else {
-                   
+
                     swal({
                         title: 'Cancelled',
                         text: 'You cancelled operation :)',
@@ -142,6 +191,38 @@ var classes = function () {
                     })
                 }
             }).catch(swal.noop)
+            return false;
+        })
+    }
+
+    this.edit = function () {
+        $(".edit").on("click", function () {
+            let url = '/classes/' + $(this).data('id');
+            $.put(url, {}, function (data) {
+                //Ajax get request
+                if (data.type == 'success') {
+                    //successfully response
+                    swal({
+                        title: 'Updated!',
+                        text: data.message,
+                        type: 'success',
+                        confirmButtonClass: 'btn-success',
+                        allowOutsideClick: false
+                    }).then(function (isConfirm) {
+                        if (isConfirm) {
+                            location.href = "/classes/list";
+                        }
+                    });
+                } else {
+                    //Error
+                    swal({
+                        title: 'Error!',
+                        text: data.message,
+                        type: 'error',
+                        confirmButtonClass: 'btn-default',
+                    });
+                }
+            });
             return false;
         })
     }
