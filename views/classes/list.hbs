@@ -1,0 +1,66 @@
+<div class="container-xl">
+	<div class="table-responsive">
+		<div class="table-wrapper">
+			<div class="table-title">
+				<div class="row">
+					<div class="col-sm-6">
+						<h2>Classes List</h2>
+					</div>
+					<div class="col-sm-6">
+						<input class="form-control me-2 mb-2" placeholder="search by all" type="search" id="search" name="search">
+						<button class="btn btn-danger" id="reset" type="submit">Reset</button>
+						<button class="btn btn-success" id="search" type="submit">Search</button>
+						<a href="#addEmployeeModal" class="btn btn-success" data-toggle="modal"><i
+								class="material-icons">&#xE147;</i> <span>Add New Class</span></a>
+					</div>
+				</div>
+			</div>
+			<table class="table table-striped table-hover">
+				<thead>
+					<tr>
+						<th>College</th>
+						<th>Class</th>
+						<th>Level's</th>
+						<th class="w-30">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#if classes}}
+					{{#each classes}}
+					<tr>
+						<td>{{collegeName}}</td>
+						<td>{{class}}</td>
+						<td>{{levels}}</td>
+						<td class="w-30">
+							<a href="#" class="download"><span class="material-icons">
+									get_app
+								</span></a>
+							<a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons"
+									data-toggle="tooltip" title="Edit">&#xE254;</i></a>
+							<a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons"
+									data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+						</td>
+					</tr>
+					{{/each}}
+					{{else}}
+					<tr>
+						<td class="text-center" colspan="100%">No records found</td>
+					</tr>
+					{{/if}}
+				</tbody>
+			</table>
+			<div class="clearfix">
+				<div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
+				<ul class="pagination">
+					<li class="page-item disabled"><a href="#">Previous</a></li>
+					<li class="page-item"><a href="#" class="page-link">1</a></li>
+					<li class="page-item"><a href="#" class="page-link">2</a></li>
+					<li class="page-item active"><a href="#" class="page-link">3</a></li>
+					<li class="page-item"><a href="#" class="page-link">4</a></li>
+					<li class="page-item"><a href="#" class="page-link">5</a></li>
+					<li class="page-item"><a href="#" class="page-link">Next</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
