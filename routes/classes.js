@@ -4,7 +4,7 @@ const Multer = require('multer');
 const Path = require('path');
 const FsExtra = require('fs-extra');
 const UuidV4 = require('uuid');
-
+let ObjectId = require('mongoose').Types.ObjectId;
 //set path and change file name for image upload
 let storage = Multer.diskStorage({
   destination: function (req, file, callback) {
@@ -34,7 +34,7 @@ let upload = Multer({
 }).single('syllabus');
 
 /* add classes listing. */
-router.post('/add', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
     upload(req, res, async function (err) {
       if (err) {
@@ -49,13 +49,14 @@ router.post('/add', async (req, res, next) => {
         }
         // Add class details in the database
         await db.models.classes.create(classData);
-        res.send({
+        return res.send({
           'type': "success",
           'message': "Class added successfully"
         });
       }
     });
   } catch (error) {
+    console.log(error);
     return res.send({
       type: 'error',
       error: error.message
@@ -81,8 +82,7 @@ router.get('/list', async function (req, res, next) {
         };
       }
       //Find all
-      let matchQuery = {
-      }
+      let matchQuery = {}
       //Search by filter
       if (req.query.search) {
         //Regex Condition for search 
@@ -284,12 +284,115 @@ router.put('/:id', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    let classR = await db.models.classes.findOne({
-      _id: req.params.id
-    }).lean();
+    let classR = await db.models.classes.aggregate([{
+        $match: {
+          _id: ObjectId(req.params.id)
+        }
+      }, {
+        $lookup: {
+          from: "colleges",
+          let: {
+            college_id: "$college"
+          },
+          pipeline: [{
+            $match: {
+              $expr: {
+                $and: [{
+                  $eq: ["$_id", "$$college_id"]
+                }]
+              }
+            }
+          }],
+          as: "college"
+        }
+      }, {
+        "$unwind": "$levels"
+      }, {
+        $lookup: {
+          from: "levels",
+          let: {
+            level_id: "$levels"
+          },
+          pipeline: [{
+            $match: {
+              $expr: {
+                $and: [{
+                  $eq: ["$_id", "$$level_id"]
+                }]
+              }
+            }
+          }],
+          as: "levels"
+        }
+      },
+      {
+
+        $project: {
+          class: 1,
+          title: 1,
+          college: {
+            $arrayElemAt: ["$college.name", 0]
+          },
+          levels: {
+            $arrayElemAt: ["$levels", 0]
+          },
+          email: 1,
+          contactNumber: 1,
+          syllabus: 1,
+          description: 1,
+          price: 1
+        }
+      },
+      {
+        "$group": {
+          "_id": "$_id",
+          "levels": {
+            "$push": "$levels"
+          },
+          "college": {
+            "$first": "$college"
+          },
+          "title": {
+            "$first": "$title"
+          },
+          "class": {
+            "$first": "$class"
+          },
+          "email": {
+            "$first": "$email"
+          },
+          "contactNumber": {
+            "$first": "$contactNumber"
+          },
+          "syllabus": {
+            "$first": "$syllabus"
+          },
+          "description": {
+            "$first": "$description"
+          },
+          "price": {
+            "$first": "$price"
+          },
+        }
+      },
+      {
+
+        $project: {
+          class: 1,
+          title: 1,
+          college: 1,
+          levels: 1,
+          email: 1,
+          contactNumber: 1,
+          syllabus: 1,
+          description: 1,
+          price: 1
+        }
+      }
+    ]);
     return res.send({
       type: 'success',
-      classR
+      classR: classR[0]
     });
   } catch (error) {
     return res.send({

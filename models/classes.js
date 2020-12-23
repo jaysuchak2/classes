@@ -10,6 +10,9 @@ module.exports = function (mongoose) {
         title: {
             type: String
         },
+        class:{
+            type: String
+        },
         contactNumber: {
             type: Number
         },
